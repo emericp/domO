@@ -1,0 +1,48 @@
+import org.openhab.core.library.types.*
+import org.openhab.core.persistence.*
+import org.openhab.model.script.actions.*
+
+rule "Init"
+	when
+		System started
+	then
+		if (SecheMax.state == Uninitialized) {
+			postUpdate(SecheMax, 26)	
+		}
+end
+
+rule "Last update node00"
+when
+  Item tempNode00 received update
+then
+  postUpdate(node00_LastUpdate, new DateTimeType())
+end
+
+rule "Last update node01"
+when
+  Item tempNode01 received update
+then
+  postUpdate(node01_LastUpdate, new DateTimeType())
+end
+
+rule "Last update node02"
+when
+  Item PuissanceInst received update or
+  Item PTEC received update or
+  Item DEMAIN received update or
+  Item todaykWh received update
+  
+then
+  postUpdate(node02_LastUpdate, new DateTimeType())
+end
+
+rule "Last update node03"
+when
+  Item tempNode03 received update or
+  Item meteoPression received update or
+  Item meteoHumidite received update or
+  Item meteoTemperature received update or
+  Item meteoLux received update
+then
+  postUpdate(node03_LastUpdate, new DateTimeType())
+end

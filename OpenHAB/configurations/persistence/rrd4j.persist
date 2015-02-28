@@ -1,0 +1,13 @@
+// persistence strategies have a name and a definition and are referred to in the "Items" section
+Strategies {
+	// for rrd charts, we need a cron strategy
+	everyMinute : "0 * * * * ?"
+	every6AM : "0 30 6 * * ?"
+}
+
+Items {
+
+	PuissanceInst, domOTemp*, meteoHumidite, meteoPression, meteoLux : strategy = everyMinute, restoreOnStartup
+	last24H*, ratiokWhTemp*, today* : strategy = everyMinute, everyUpdate, restoreOnStartup
+
+}
