@@ -381,7 +381,10 @@ void loop() {
       if (myPacket.type == 10) {
         // Lumens
         if(MQTT_client.connected()) {
-          itoa((unsigned long)myPacket.dataF, buff_message, 10);
+          buff_S = String((unsigned int)myPacket.dataF);
+          buff_S.toCharArray(buff_message,20);
+          
+          //itoa((unsigned long)myPacket.dataF, buff_message, 10);
           MQTT_client.publish("node/03/lumi/00", buff_message);
         }
       }
