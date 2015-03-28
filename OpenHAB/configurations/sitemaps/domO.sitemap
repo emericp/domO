@@ -159,6 +159,7 @@ sitemap demo label="domO"
 			Text item=node01_LastUpdate
 			Text item=node02_LastUpdate
 			Text item=node03_LastUpdate
+			Text item=bNode00
 		}
 		
 	}

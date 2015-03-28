@@ -56,3 +56,7 @@ DateTime	node00_LastUpdate	"Last Update node00 [%1$ta %1$tT]"	<clock>
 DateTime	node01_LastUpdate	"Last Update node01 [%1$ta %1$tT]"	<clock>
 DateTime	node02_LastUpdate	"Last Update node02 [%1$ta %1$tT]"	<clock>
 DateTime	node03_LastUpdate	"Last Update node03 [%1$ta %1$tT]"	<clock>
+DateTime	bNode00			"Last start node00 [%1$ta %1$tb %1$td %1$tR]"	<clock>
+
+// messages bonjour
+String	bonjourNode00	{ mqtt="<[raspMosquitto:node/00:state:default]" }

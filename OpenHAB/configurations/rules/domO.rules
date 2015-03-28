@@ -7,7 +7,7 @@ rule "Init"
 		System started
 	then
 		if (SecheMax.state == Uninitialized) {
-			postUpdate(SecheMax, 26)	
+			postUpdate(SecheMax, 27)	
 		}
 end
 
@@ -45,4 +45,11 @@ when
   Item meteoLux received update
 then
   postUpdate(node03_LastUpdate, new DateTimeType())
+end
+
+rule "Last start node00"
+when
+  Item bonjourNode00 received update
+then
+  postUpdate(bNode00, new DateTimeType())
 end

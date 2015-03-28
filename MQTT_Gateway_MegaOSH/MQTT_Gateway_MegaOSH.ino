@@ -13,7 +13,8 @@
     
     Jan 13 2015
     Implement rf24 lib
-    envoi marche arret au node01
+    envoi marche arret au node01l
+    S
     
     Jan 18 2015
     Passage du nrf24 en softSPI, PB SPI sur le shield ethernet
@@ -26,6 +27,9 @@
     
     Fev 12 2015
     Reception des donnée teleinfo, compteur, prix d'hier, depuis 6h, etc
+    
+    Mar 24 2015
+    Ajout ecriure des logs dans la carte SD en cas de plantage
 
     E.PORTE    
 */
@@ -33,6 +37,7 @@
 // Bibliotheque ethernet shield + mqtt
 
 #include <SPI.h>
+#include <SD.h>
 #include <Ethernet.h>
 #include <PubSubClient.h>
 
@@ -42,13 +47,16 @@
 #include "RF24.h"
 #include "printf.h"
 
+// WATCHDOG
+#include <avr/wdt.h>
+
 const byte SENDER=0x00;
 
 
 /* Conf RF24_config.h
       const uint8_t SOFT_SPI_MISO_PIN = 3; 
-      const uint8_t SOFT_SPI_MOSI_PIN = 2; 
-      const uint8_t SOFT_SPI_SCK_PIN = 4; 
+      const uint8_t SOFT_SPI_MOSI_PIN = 7; 
+      const uint8_t SOFT_SPI_SCK_PIN = 2; 
 */
 
 
@@ -86,6 +94,8 @@ void sendTemp(void);
 EthernetClient ethClient;
 PubSubClient MQTT_client(server, 1883, callback, ethClient);
 
+File myFile;
+
 // Variable pour la tempo
 long previousMillis = 0;
 long interval = 60000; //toute les minutes
@@ -101,16 +111,24 @@ struct rfPacket {
   float dataF;
 };
 
+int ramfree = 0;
+
+byte noSD = 1;
+
 
 // the setup routine runs once when you press reset:
 void setup() {
 
   Serial.begin(57600);
+  // WATCHDOG
+  wdt_disable();
+  Serial.println("Desactivation Watchdog.");
+  
   // init rf24
   printf_begin();
   printf("\n\rDemarrage RF24 sur MQTT Gateway\n\r");
   // Setup and configure rf radio
-  digitalWrite(10, HIGH);
+  //digitalWrite(10, HIGH);
   radio.begin();                          // Start up the radio
   // CONFIG du Module NRF24, a mettre sur tout les modules :
   radio.setAutoAck(1);                    // Ensure autoACK is enabled
@@ -123,8 +141,19 @@ void setup() {
   radio.openReadingPipe(1,myAddress);
   radio.startListening();                 // Start listening
   radio.printDetails();                   // Dump the configuration of the rf unit for debugging
-  //radio.openWritingPipe(addresses[1]);
-  //radio.openReadingPipe(1,addresses[0]);
+
+  Serial.print("Initializing SD card...");
+  pinMode(53, OUTPUT);
+
+  if (!SD.begin(4)) {
+    Serial.println("initialization failed!");
+    //return;
+  }
+  else {
+    Serial.println("initialization done.");
+    noSD = 0;
+  }
+
   // RAM dispo
   Serial.print("Ram dispo = ");
   Serial.println(freeRam());
@@ -141,15 +170,7 @@ void setup() {
   Serial.println("1...");
   delay(500); // 3 seconde le temps de lancer le terminal serie
   
-  /*unsigned long test=43984;
-  char buff_message[20];
-  String buff_message1 = String(test);
-  buff_message1.toCharArray(buff_message,20);
-  //ltoa(test, buff_message, 10); // float to string compteur
-  Serial.print("node/02/bbrh/01");
-  Serial.println(buff_message);
-  MQTT_client.publish("node/02/bbrh/01", buff_message);
-  */
+
 }
 
 // the loop routine runs over and over again forever:
@@ -160,6 +181,8 @@ void loop() {
   //====== Ici boucle infini sans tempo
   // On se connecte si on ne l'est pas....
   initMQTT();
+  // WATCHDOG
+  wdt_reset();
   // ...
   // ...
   // ...
@@ -182,6 +205,26 @@ void loop() {
     Serial.print(myPacket.dataF);
     Serial.print(" dataF(ulong):");
     Serial.println((unsigned long)myPacket.dataF);
+    
+    if (noSD != 1) {
+      myFile = SD.open("mqlog.txt", FILE_WRITE);
+      if (myFile) {
+        myFile.print("Sender:");
+        myFile.print(myPacket.sender);
+        myFile.print(" Type:");
+        myFile.print(myPacket.type);
+        myFile.print(" Sensor:");
+        myFile.print(myPacket.sensor);
+        myFile.print(" dataB:");
+        myFile.print(myPacket.dataB);
+        myFile.print(" dataF:");
+        myFile.print(myPacket.dataF);
+        myFile.print(" dataF(ulong):");
+        myFile.println((unsigned long)myPacket.dataF);
+        myFile.close();
+      }
+    }
+    
     //=============================================================
     if (myPacket.sender == 1) { // si on recoit du node 01 (heatControl)
       if (myPacket.type == 1) { // Temperature
@@ -414,9 +457,22 @@ void loop() {
     sendTemp();
     debug++;
   
-    Serial.print(freeRam());
+    ramfree = freeRam();
+    Serial.print(ramfree);
     Serial.print(" octets dispo. Boucle no. ");
     Serial.println(debug);
+    
+    if (noSD != 1) {
+      myFile = SD.open("mqlog.txt", FILE_WRITE);
+      if (myFile) {
+        myFile.print("Ram libre : ");
+        myFile.print(ramfree);
+        myFile.print(" octets, Boucle no. ");
+        myFile.println(debug);
+        myFile.close();
+      }
+    }
+    
     // Fin tempo
   }
   
@@ -453,6 +509,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
         sendMyPacket( 0x01, 2, 0, 0, 0);
       }
       else if (buff_message[0] == '1') {
+        //while(1)
+        //;
         sendMyPacket( 0x01, 2, 0, 1, 0);
       }
       else return;
@@ -482,6 +540,15 @@ void initMQTT(void) {
         Serial.print(i);
         Serial.print(" result : ");
         Serial.println(MQTT_client.connect("ArduinoGateway"));
+        
+        if (noSD != 1) {
+          myFile = SD.open("mqlog.txt", FILE_WRITE);
+          if (myFile) {
+            myFile.println("Connection au broker MQTT...");
+            myFile.close();
+          }
+        }
+        
         delay(4000);
       }
       if(MQTT_client.connected()) {
@@ -492,6 +559,26 @@ void initMQTT(void) {
         Serial.println("Subscribe node#");
         MQTT_client.subscribe("node/#");
         Serial.println("Fin connexion au broker MQTT.");
+        
+        if (noSD != 1) {
+          myFile = SD.open("mqlog.txt", FILE_WRITE);
+          if (myFile) {
+            myFile.println("Connection OK sur raspMosquitto.");
+            myFile.close();
+          }
+        }
+        // WATCHDOG
+        wdt_enable(WDTO_8S);
+        Serial.println("Activation Watchdog: 8Sec.");
+      }
+      else {
+        if (noSD != 1) {
+          myFile = SD.open("mqlog.txt", FILE_WRITE);
+          if (myFile) {
+            myFile.println("Echec de connection au broker.");
+            myFile.close();
+          }
+        }
       }
   }
 }
