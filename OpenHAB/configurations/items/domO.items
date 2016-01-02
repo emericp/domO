@@ -49,14 +49,16 @@ Number	meteoLux			"Lumens [%d lux]"		<sun>	(gExt)								{ mqtt="<[raspMosquitto
 Number	temp_Period	"Graph. Température"
 Number	tempNode00	"Température node00 [%.1f °C]"	<temperature>	(gSalon,domOTemp)	{ mqtt="<[raspMosquitto:node/00/temp/00:state:default]" }
 Number	tempNode01	"Température node01 [%.1f °C]"	<temperature>	(gSdB,domOTemp)		{ mqtt="<[raspMosquitto:node/01/temp/00:state:default]" }
-Number	tempNode03	"Température node03 [%.1f °C]"	<temperature>	(gExt, domOTemp)	{ mqtt="<[raspMosquitto:node/03/temp/01:state:default]" }
+//Number	tempNode03	"Température node03 [%.1f °C]"	<temperature>	(gExt, domOTemp)	{ mqtt="<[raspMosquitto:node/03/temp/01:state:default]" }
 
 // Date des update de node.
 DateTime	node00_LastUpdate	"Last Update node00 [%1$ta %1$tT]"	<clock>
 DateTime	node01_LastUpdate	"Last Update node01 [%1$ta %1$tT]"	<clock>
 DateTime	node02_LastUpdate	"Last Update node02 [%1$ta %1$tT]"	<clock>
 DateTime	node03_LastUpdate	"Last Update node03 [%1$ta %1$tT]"	<clock>
-DateTime	bNode00			"Last start node00 [%1$ta %1$tb %1$td %1$tR]"	<clock>
+DateTime	bNode00				"Last start node00 [%1$ta %1$td %1$tb %1$tR]"	<clock>
+Switch		resetNode00			"Reboot node00"						<network>		{ mqtt=">[raspMosquitto:node/00/rese/00:command:OFF:0],>[raspMosquitto:node/00/rese/00:command:ON:1],<[raspMosquitto:node/00/rese/00:state:default]" }
+
 
 // messages bonjour
 String	bonjourNode00	{ mqtt="<[raspMosquitto:node/00:state:default]" }

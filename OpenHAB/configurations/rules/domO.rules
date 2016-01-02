@@ -2,6 +2,7 @@ import org.openhab.core.library.types.*
 import org.openhab.core.persistence.*
 import org.openhab.model.script.actions.*
 
+
 rule "Init"
 	when
 		System started
@@ -36,6 +37,27 @@ then
   postUpdate(node02_LastUpdate, new DateTimeType())
 end
 
+rule "Demain Rouge"
+when
+	Item DEMAIN received update ROUGE
+then
+	sendMail("mourf@me.com", "Tarif de demain : ROUGE", "Le tarif EDF de demain sera ROUGE.")
+end
+
+rule "Demain Blanc"
+when
+	Item DEMAIN received update BLANC
+then
+	sendMail("mourf@me.com", "Tarif de demain : BLANC", "Le tarif EDF de demain sera BLANC.")
+end
+
+//rule "Demain Bleu"
+//when
+//	Item DEMAIN received update BLEU
+//then
+//	sendMail("mourf@me.com", "Tarif de demain : BLEU", "Le tarif EDF de demain sera BLEU.")
+//end
+
 rule "Last update node03"
 when
   Item tempNode03 received update or
@@ -52,4 +74,5 @@ when
   Item bonjourNode00 received update
 then
   postUpdate(bNode00, new DateTimeType())
+  sendMail("mourf@me.com", "Start node00", "Le node00, MQTT Gateway, vient de démarrer")
 end

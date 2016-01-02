@@ -59,22 +59,31 @@ sitemap demo label="domO"
 		Text label="Extérieur" icon="garden" {
 			Text label="Station météo" icon="sun_clouds" {
 				Text label="Graphiques" icon="chart" {
-					Switch item=meteo_Period label="Météo" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
+					Switch item=meteo_Period label="Météo" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
 					Chart item=meteoTemperature period=4h refresh=3600 visibility=[meteo_Period==0, meteo_Period=="Uninitialized"]
 					Chart item=meteoTemperature period=D refresh=3600 visibility=[meteo_Period==1]
 					Chart item=meteoTemperature period=W refresh=3600 visibility=[meteo_Period==2]
+					Chart item=meteoTemperature period=M refresh=3600 visibility=[meteo_Period==3]
+					Chart item=meteoTemperature period=Y refresh=3600 visibility=[meteo_Period==4]
 					
 					Chart item=meteoHumidite period=4h refresh=3600 visibility=[meteo_Period==0, meteo_Period=="Uninitialized"]
 					Chart item=meteoHumidite period=D refresh=3600 visibility=[meteo_Period==1]
 					Chart item=meteoHumidite period=W refresh=3600 visibility=[meteo_Period==2]
+					Chart item=meteoHumidite period=M refresh=3600 visibility=[meteo_Period==3]
+					Chart item=meteoHumidite period=Y refresh=3600 visibility=[meteo_Period==4]
 					
 					Chart item=meteoPression period=4h refresh=3600 visibility=[meteo_Period==0, meteo_Period=="Uninitialized"]
 					Chart item=meteoPression period=D refresh=3600 visibility=[meteo_Period==1]
 					Chart item=meteoPression period=W refresh=3600 visibility=[meteo_Period==2]
+					Chart item=meteoPression period=M refresh=3600 visibility=[meteo_Period==3]
+					Chart item=meteoPression period=Y refresh=3600 visibility=[meteo_Period==4]
 					
 					Chart item=meteoLux period=4h refresh=3600 visibility=[meteo_Period==0, meteo_Period=="Uninitialized"]
 					Chart item=meteoLux period=D refresh=3600 visibility=[meteo_Period==1]
 					Chart item=meteoLux period=W refresh=3600 visibility=[meteo_Period==2]
+					Chart item=meteoLux period=M refresh=3600 visibility=[meteo_Period==3]
+					Chart item=meteoLux period=Y refresh=3600 visibility=[meteo_Period==4]
+
 				}
 				Text item=meteoTemperature
 				Text item=meteoHumidite
@@ -86,28 +95,34 @@ sitemap demo label="domO"
 
 	Frame label="Temperature des Nodes" {
 		Text label="Graphiques" icon="chart" {
-					Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
+					Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
 					Chart item=domOTemp period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
 					Chart item=domOTemp period=D refresh=3600 visibility=[temp_Period==1]
 					Chart item=domOTemp period=W refresh=3600 visibility=[temp_Period==2]
+					Chart item=domOTemp period=M refresh=3600 visibility=[temp_Period==3]
+					Chart item=domOTemp period=Y refresh=3600 visibility=[temp_Period==4]
 		}
 		Text item=tempNode00 valuecolor=[>40="red",>20="green",>15="blue",<=5="blue"] {
-			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
+			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
 			Chart item=tempNode00 period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
 			Chart item=tempNode00 period=D refresh=3600 visibility=[temp_Period==1]
 			Chart item=tempNode00 period=W refresh=3600 visibility=[temp_Period==2]
+			Chart item=tempNode00 period=M refresh=3600 visibility=[temp_Period==3]
+
 		}
 		Text item=tempNode01 valuecolor=[>25="red",>18="green",>15="blue",<=5="blue"] {
-			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
+			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
 			Chart item=tempNode01 period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
 			Chart item=tempNode01 period=D refresh=3600 visibility=[temp_Period==1]
 			Chart item=tempNode01 period=W refresh=3600 visibility=[temp_Period==2]
+			Chart item=tempNode01 period=M refresh=3600 visibility=[temp_Period==3]
 		}
-		Text item=tempNode03 valuecolor=[>25="red",>18="green",<=5="blue"] {
-			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
-			Chart item=tempNode03 period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
-			Chart item=tempNode03 period=D refresh=3600 visibility=[temp_Period==1]
-			Chart item=tempNode03 period=W refresh=3600 visibility=[temp_Period==2]
+		Text item=meteoTemperature valuecolor=[>25="red",>18="green",<=5="blue"] {
+			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
+			Chart item=meteoTemperature period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
+			Chart item=meteoTemperature period=D refresh=3600 visibility=[temp_Period==1]
+			Chart item=meteoTemperature period=W refresh=3600 visibility=[temp_Period==2]
+			Chart item=meteoTemperature period=M refresh=3600 visibility=[temp_Period==3]
 		}
 	}	
 	Frame label="Compteur EDF" {
@@ -160,6 +175,7 @@ sitemap demo label="domO"
 			Text item=node02_LastUpdate
 			Text item=node03_LastUpdate
 			Text item=bNode00
+			Switch item=resetNode00 label="Reboot Node00" mappings=[OFF="Reset"]
 		}
 		
 	}
