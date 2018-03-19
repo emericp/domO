@@ -4,6 +4,7 @@ import org.openhab.model.script.actions.*
 import java.lang.Math
 
 
+
 rule "Init"
 	when
 		System started
@@ -127,6 +128,7 @@ when
 then
   postUpdate(bNode00, new DateTimeType())
   sendMail("mourf@me.com", "Start node00", "Le node00, MQTT Gateway, vient de démarrer")
+<<<<<<< HEAD
 end
 
 rule "Chauffage Quentin"
@@ -162,4 +164,6 @@ when
 	Item meteoPressionProxy received update
 then
 	meteoPression.sendCommand((meteoPressionProxy.state as DecimalType) * 10)
+=======
+>>>>>>> origin/master
 end

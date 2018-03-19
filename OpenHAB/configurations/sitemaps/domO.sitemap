@@ -90,7 +90,11 @@ sitemap domO label="domO"
 		Text label="Extérieur" icon="garden" {
 //			Text label="Station météo" icon="sun_clouds" {
 				Text label="Graphiques" icon="chart" {
+<<<<<<< HEAD
 					Switch item=meteo_Period label="Météo" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+=======
+					Switch item=meteo_Period label="Météo" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+>>>>>>> origin/master
 					Chart item=meteoTemperature period=4h refresh=3600 visibility=[meteo_Period==0, meteo_Period=="Uninitialized"]
 					Chart item=meteoTemperature period=D refresh=3600 visibility=[meteo_Period==1]
 					Chart item=meteoTemperature period=W refresh=3600 visibility=[meteo_Period==2]
@@ -128,21 +132,31 @@ sitemap domO label="domO"
 
 	Frame label="Temperature des Nodes" {
 		Text label="Graphiques" icon="chart" {
+<<<<<<< HEAD
 					Switch item=temp_Period label="Températures" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+=======
+					Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
+>>>>>>> origin/master
 					Chart item=domOTemp period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
 					Chart item=domOTemp period=D refresh=3600 visibility=[temp_Period==1]
 					Chart item=domOTemp period=W refresh=3600 visibility=[temp_Period==2]
 					Chart item=domOTemp period=M refresh=3600 visibility=[temp_Period==3]
 					Chart item=domOTemp period=Y refresh=3600 visibility=[temp_Period==4]
 		}
+<<<<<<< HEAD
 		Text item=tempNode00 valuecolor=[>40="red",>25="green",<=25="blue"] {
 			Switch item=temp_Period label="Températures" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
+=======
+		Text item=tempNode00 valuecolor=[>40="red",>20="green",>15="blue",<=5="blue"] {
+			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
+>>>>>>> origin/master
 			Chart item=tempNode00 period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
 			Chart item=tempNode00 period=D refresh=3600 visibility=[temp_Period==1]
 			Chart item=tempNode00 period=W refresh=3600 visibility=[temp_Period==2]
 			Chart item=tempNode00 period=M refresh=3600 visibility=[temp_Period==3]
 
 		}
+<<<<<<< HEAD
 		//Text item=tempNode01 valuecolor=[>25="red",>18="green",<18="blue"] {
 		//	Switch item=temp_Period label="Températures" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
 		//	Chart item=tempNode01 period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
@@ -152,6 +166,17 @@ sitemap domO label="domO"
 		//}
 		Text item=meteoTemperature valuecolor=[>25="red",>11="green",<=11="blue"] {
 			Switch item=temp_Period label="Températures" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
+=======
+		Text item=tempNode01 valuecolor=[>25="red",>18="green",>15="blue",<=5="blue"] {
+			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
+			Chart item=tempNode01 period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
+			Chart item=tempNode01 period=D refresh=3600 visibility=[temp_Period==1]
+			Chart item=tempNode01 period=W refresh=3600 visibility=[temp_Period==2]
+			Chart item=tempNode01 period=M refresh=3600 visibility=[temp_Period==3]
+		}
+		Text item=meteoTemperature valuecolor=[>25="red",>18="green",<=5="blue"] {
+			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
+>>>>>>> origin/master
 			Chart item=meteoTemperature period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
 			Chart item=meteoTemperature period=D refresh=3600 visibility=[temp_Period==1]
 			Chart item=meteoTemperature period=W refresh=3600 visibility=[temp_Period==2]

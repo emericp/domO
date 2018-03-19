@@ -62,6 +62,7 @@ Number	tempNode01	"Température node01 [%.1f °C]"	<temperature>	(gSdB,domOTemp)
 //Number	tempNode03	"Température node03 [%.1f °C]"	<temperature>	(gExt, domOTemp)	{ mqtt="<[raspMosquitto:node/03/temp/01:state:default]" }
 
 // Date des update de node.
+<<<<<<< HEAD
 DateTime	node00_LastUpdate	"node00 MQTTGateway [%1$td %1$tb %1$tT]"	<time>
 DateTime	node01_LastUpdate	"node01 Sdb [%1$td %1$tb %1$tT]"	<time>
 DateTime	node02_LastUpdate	"node02 EDF [%1$td %1$tb %1$tT]"	<time>
@@ -72,6 +73,13 @@ DateTime        miTempChambre1_LastUpdate       "miSensor Ch. Parents [%1$td %1$
 DateTime	miPlugChambre3_LastUpdate	"miPlug Ch. Quentin [%1$td %1$tb %1$tT]"  <time>
 DateTime	miSondeExt_LastUpdate		"Sonde Ext. [%1$td %1$tb %1$tT]"  <time>
 DateTime	bNode00				"Last start node00 [%1$ta %1$td %1$tb %1$tR]"	<time>
+=======
+DateTime	node00_LastUpdate	"Last Update node00 [%1$ta %1$tT]"	<clock>
+DateTime	node01_LastUpdate	"Last Update node01 [%1$ta %1$tT]"	<clock>
+DateTime	node02_LastUpdate	"Last Update node02 [%1$ta %1$tT]"	<clock>
+DateTime	node03_LastUpdate	"Last Update node03 [%1$ta %1$tT]"	<clock>
+DateTime	bNode00				"Last start node00 [%1$ta %1$td %1$tb %1$tR]"	<clock>
+>>>>>>> origin/master
 Switch		resetNode00			"Reboot node00"						<network>		{ mqtt=">[raspMosquitto:node/00/rese/00:command:OFF:0],>[raspMosquitto:node/00/rese/00:command:ON:1],<[raspMosquitto:node/00/rese/00:state:default]" }
 
 
