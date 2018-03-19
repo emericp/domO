@@ -123,6 +123,8 @@ void setup() {
   //radio.setAutoAck(1);                    // Ensure autoACK is enabled
   radio.setRetries(15,15);                // Max delay between retries & number of retries
   radio.setChannel(123);  
+  radio.setPayloadSize(8);                // Payload de 8bytes seulement
+  radio.setDataRate(RF24_250KBPS);        // Debit à 250kbps
   //radio.openWritingPipe(addresses[0]); // envoi à 0node
   radio.openReadingPipe(1,myAddress); // recois sur 1Node
   

@@ -30,6 +30,9 @@
     
     Mar 24 2015
     Ajout ecriure des logs dans la carte SD en cas de plantage
+    
+    Mar 29 2015
+    Reset via interface de OpenHAB + Watchdog actif
 
     E.PORTE    
 */
@@ -40,10 +43,7 @@
 #include <SD.h>
 #include <Ethernet.h>
 #include <PubSubClient.h>
-
 #include "DigitalIO.h"
-
-//#include "nRF24L01.h"
 #include "RF24.h"
 #include "printf.h"
 
@@ -63,7 +63,6 @@ const byte SENDER=0x00;
 // Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins ce & cs 
 RF24 radio(8,9);
 
-//byte addresses[][6] = {"0Node","1Node","9Node"};
 uint8_t myAddress[] = { SENDER,'d','o','m','O' };
 uint8_t toAddress[] = { 0xFF,'d','o','m','O' };
 
@@ -76,9 +75,6 @@ byte mac[]    = {  0x90, 0xA2, 0xDA, 0x0D, 0x01, 0xBF };
 // Home network
 byte server[] = { 192, 168, 1, 253 };
 byte ip[]     = { 192, 168, 1, 6 };
-// Varian Laptop
-//byte server[] = { 172, 20, 20, 226 };
-//byte ip[]     = { 172, 20, 20, 100 };
 
 // déclaration Fontions
 // reception des message
@@ -133,10 +129,18 @@ void setup() {
   // CONFIG du Module NRF24, a mettre sur tout les modules :
   radio.setAutoAck(1);                    // Ensure autoACK is enabled
   radio.setRetries(15,15);                // Max delay between retries & number of retries  
-  //radio.setPALevel(RF24_PA_MAX);          // Puissance max
+
+  pinMode(5, INPUT);
+  if (digitalRead(5) == LOW)
+    radio.setPALevel(RF24_PA_MAX);          // Puissance max
+  else {
+    Serial.println("Jumper position PA_LOW.");
+    radio.setPALevel(RF24_PA_LOW);          // Puissance basse
+  }
+
   radio.setChannel(123);                  // Canal numero 123
-  //radio.setPayloadSize(8);                // Payload de 8bytes seulement
-  //radio.setDataRate(RF24_250KBPS);        // Debit à 250kbps
+  radio.setPayloadSize(8);                // Payload de 8bytes seulement
+  radio.setDataRate(RF24_250KBPS);        // Debit à 250kbps
   // Fin config
   radio.openReadingPipe(1,myAddress);
   radio.startListening();                 // Start listening
@@ -247,16 +251,9 @@ void loop() {
     }
     //=============================================================
     if (myPacket.sender == 9) { // Ici on a a faire a PingMachineNRF24 pour diagnostique RF
-      
       Serial.println("Ping recu de node 09");
       sendMyPacket( 0x09, 3, 0, 0, myPacket.dataF);
       
-      //radio.openWritingPipe(addresses[2]);
-      //radio.stopListening();       // First, stop listening so we can talk   
-      //if (!radio.write( &myPacket, sizeof(myPacket) )){  printf("failed.\n\r");  }
-      //else printf("ACK OK.\n\r");
-      //radio.startListening();                                       // Now, resume listening so we catch the next packets.     
-      //radio.openWritingPipe(addresses[1]);
     }
     //=============================================================
     if (myPacket.sender == 2) { // Ici on a a faire a TeleInfoNode
@@ -496,7 +493,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
   // On analyse le topic
   if (topicToParse.substring(0,4) != "node") return; // Si le topic ne commence pas par "node" on arrete la...
   //Serial.println("On a un topic NODE...");
-  if (topicToParse.substring(5,7) == "00") return; // un message du node 00, pas besoin de le traiter
+  if (topicToParse.substring(5,7) == "00") { // un message du node 00
+      if (topicToParse.substring(8,12) == "rese") { // Action du reset node00.
+        if (buff_message[0] == '0') {
+          Serial.println("Reboot demande.");
+          while(1) // on utilise le watchdog pour resetter le node00
+          ;
+        }
+    }
+  }
 
   if (topicToParse.substring(5,7) == "01") { //On traite les requete pour node01
     //Serial.println("Message bon pour analyse...");
@@ -509,8 +514,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
         sendMyPacket( 0x01, 2, 0, 0, 0);
       }
       else if (buff_message[0] == '1') {
-        //while(1)
-        //;
         sendMyPacket( 0x01, 2, 0, 1, 0);
       }
       else return;
@@ -533,6 +536,7 @@ void initMQTT(void) {
       // MQTT_client.connect("arduino-mqtt", "john@m2m.io", "00000000000000000000000000000");
       // Basic authentification
       byte i=0;
+      wdt_disable();
       while (!MQTT_client.connected() && i < 5) // tant qu'on est pas connecté et qu'on a fait 3 tentative de connexion
       {
         i++;
@@ -548,7 +552,6 @@ void initMQTT(void) {
             myFile.close();
           }
         }
-        
         delay(4000);
       }
       if(MQTT_client.connected()) {
@@ -570,6 +573,7 @@ void initMQTT(void) {
         // WATCHDOG
         wdt_enable(WDTO_8S);
         Serial.println("Activation Watchdog: 8Sec.");
+        MQTT_client.publish("node/00/rese/00", "ON");
       }
       else {
         if (noSD != 1) {

@@ -47,6 +47,16 @@ MOTDETAT 000000 B
 
 */
 
+// ECRAN
+#include "SPI.h"
+#include "Adafruit_GFX.h"
+#include <Adafruit_ST7735.h> 
+#define TFT_CS     10
+#define TFT_RST    6  // you can also connect this to the Arduino reset
+                      // in which case, set this #define pin to 0!
+#define TFT_DC     5
+// ----
+
 #include <SoftwareSerial.h>
 #include <EEPROM.h>
 
@@ -117,6 +127,9 @@ const int pjwOld=30;
 const int cjrOld=40;
 const int pjrOld=50;
 
+long resultKWh = 0;
+float resultKWhEuro = 0;
+
 
 int interval=30000;
 unsigned long previousMillis=0;
@@ -124,7 +137,12 @@ int oldPower=0;
 byte sendChoice=0;
 
 int getTrame(void);
+void sendRetry(byte destination, byte type, byte sensor, byte dataB, float dataF, byte retry);
 int sendMyPacket(byte destination, byte type, byte sensor, byte dataB, float dataF);
+
+// ECRAN
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
+// -----
 
 // Fonction d'initialisation de la carte Arduino, appelée
 // 1 fois à la mise sous-tension ou après un reset
@@ -141,8 +159,8 @@ void setup()
   radio.setRetries(15,15);                // Max delay between retries & number of retries  
   //radio.setPALevel(RF24_PA_MAX);          // Puissance max
   radio.setChannel(123);                  // Canal numero 123
-  //radio.setPayloadSize(8);                // Payload de 8bytes seulement
-  //radio.setDataRate(RF24_250KBPS);        // Debit à 250kbps
+  radio.setPayloadSize(8);                // Payload de 8bytes seulement
+  radio.setDataRate(RF24_250KBPS);        // Debit à 250kbps
   // Fin config
   radio.startListening();                 // Start listening
   radio.printDetails();                   // Dump the configuration of the rf unit for debugging
@@ -157,6 +175,19 @@ void setup()
   //  vitesse de la Télé-Information d'après la doc EDF
   cptSerial->begin(1200);
   Serial.println(F("setup complete"));
+ 
+  // ECRAN
+  pinMode(3, OUTPUT);
+  analogWrite(3, 200);
+  tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
+  tft.fillScreen(ST7735_BLACK);
+  tft.setRotation(1);
+  tft.setTextSize(3);
+  //tft.setCursor(17, 45);
+  //tft.setTextColor(ST7735_WHITE,ST7735_BLACK);
+  //tft.print("PLEINES");
+  // -----
+  
 }
 
 // Boucle principale, appelée en permanence une fois le 
@@ -181,6 +212,18 @@ void loop()
         Serial.println("Changement de puissance, envoi au node00");
         sendMyPacket( 0x00, 6, 0, 0, tmp*230);
         oldPower = tmp;
+        // ON ECRIT SUR L ECRAN:
+        tft.setCursor(15, 5);
+        if ((tarifActuel=="HPJB") || (tarifActuel=="HCJB")) tft.setTextColor(ST7735_BLUE,ST7735_BLACK);
+        if ((tarifActuel=="HPJW") || (tarifActuel=="HCJW")) tft.setTextColor(ST7735_WHITE,ST7735_BLACK);
+        if ((tarifActuel=="HPJR") || (tarifActuel=="HCJR")) tft.setTextColor(ST7735_RED,ST7735_BLACK);
+        tft.setTextSize(4);
+        if (tmp*230 < 1000) tft.print(" ");
+        tft.print(tmp*230);
+        tft.setTextSize(4);
+        tft.setCursor(125, 2);
+        tft.print("W");
+        //
       }
     }
     if (infoGroup.etiquette == "PTEC") { // Si le message est le tarif du jour
@@ -192,21 +235,36 @@ void loop()
         if ((infoGroup.champ == "HPJR") || (infoGroup.champ == "HPJW") || (infoGroup.champ == "HPJB")) {
           if (tarifActuel == "HCJB") { // On regarde le tarif d'avant
             tmplong = (bbrh.cjb - EEPROMReadlong(cjbOld)) + (bbrh.pjb - EEPROMReadlong(pjbOld)); // On a les kWh total
-            sendMyPacket( 0x00, 7, 7, 0, tmplong); // On envoi les last24kWh
+            resultKWh = sendMyPacket( 0x00, 7, 7, 0, tmplong); // On envoi les last24kWh
+            if (resultKWh == 0) resultKWh = tmplong;
+            else resultKWh = 0;
+            delay(200);
             tmpfloat = (float)(bbrh.cjb - EEPROMReadlong(cjbOld))*euroHCJB + (float)(bbrh.pjb - EEPROMReadlong(pjbOld))*euroHPJB;
-            sendMyPacket( 0x00, 7, 8, 0, tmpfloat); // On envoi les last24kWh en euros
+            resultKWhEuro = sendMyPacket( 0x00, 7, 8, 0, tmpfloat); // On envoi les last24kWh en euros
+            if (resultKWhEuro == 0) resultKWhEuro = tmpfloat;
+            else resultKWhEuro = 0;
           }
           if (tarifActuel == "HCJW") { // On regarde le tarif d'avant
             tmplong = (bbrh.cjw - EEPROMReadlong(cjwOld)) + (bbrh.pjw - EEPROMReadlong(pjwOld));
-            sendMyPacket( 0x00, 7, 7, 0, tmplong);
+            resultKWh = sendMyPacket( 0x00, 7, 7, 0, tmplong);
+            if (resultKWh == 0) resultKWh = tmplong;
+            else resultKWh = 0;
+            delay(200);
             tmpfloat = (float)(bbrh.cjw - EEPROMReadlong(cjwOld))*euroHCJW + (float)(bbrh.pjw - EEPROMReadlong(pjwOld))*euroHPJW;
-            sendMyPacket( 0x00, 7, 8, 0, tmpfloat); // On envoi les last24kWh en euros
+            resultKWhEuro = sendMyPacket( 0x00, 7, 8, 0, tmpfloat); // On envoi les last24kWh en euros
+            if (resultKWhEuro == 0) resultKWhEuro = tmpfloat;
+            else resultKWhEuro = 0;
           }
           if (tarifActuel == "HCJR") { // On regarde le tarif d'avant
             tmplong = (bbrh.cjr - EEPROMReadlong(cjrOld)) + (bbrh.pjr - EEPROMReadlong(pjrOld));
-            sendMyPacket( 0x00, 7, 7, 0, tmplong);
+            resultKWh = sendMyPacket( 0x00, 7, 7, 0, tmplong);
+            if (resultKWh == 0) resultKWh = tmplong;
+            else resultKWh = 0;
+            delay(200);
             tmpfloat = (float)(bbrh.cjr - EEPROMReadlong(cjrOld))*euroHCJR+ (float)(bbrh.pjr - EEPROMReadlong(pjrOld))*euroHPJR;
-            sendMyPacket( 0x00, 7, 8, 0, tmpfloat); // On envoi les last24kWh en euros
+            resultKWhEuro = sendMyPacket( 0x00, 7, 8, 0, tmpfloat); // On envoi les last24kWh en euros
+            if (resultKWhEuro == 0) resultKWhEuro = tmpfloat;
+            else resultKWhEuro = 0;
           }
         }
       
@@ -298,20 +356,26 @@ void loop()
           if ((tarifActuel == "HCJB") || (tarifActuel == "HPJB")) { // On regarde le tarif
             tmplong = (bbrh.cjb - EEPROMReadlong(cjbOld)) + (bbrh.pjb - EEPROMReadlong(pjbOld)); // On a les kWh total
             sendMyPacket( 0x00, 7, 9, 0, tmplong); // On envoi les last24kWh
+            delay(100);
             tmpfloat = (float)(bbrh.cjb - EEPROMReadlong(cjbOld))*euroHCJB + (float)(bbrh.pjb - EEPROMReadlong(pjbOld))*euroHPJB;
             sendMyPacket( 0x00, 7, 10, 0, tmpfloat); // On envoi les last24kWh en euros
+            printEuro(tmpfloat);
           }
           if ((tarifActuel == "HCJW") || (tarifActuel == "HPJW")) { // On regarde le tarif d'avant
             tmplong = (bbrh.cjw - EEPROMReadlong(cjwOld)) + (bbrh.pjw - EEPROMReadlong(pjwOld));
             sendMyPacket( 0x00, 7, 9, 0, tmplong);
+            delay(100);
             tmpfloat = (float)(bbrh.cjw - EEPROMReadlong(cjwOld))*euroHCJW + (float)(bbrh.pjw - EEPROMReadlong(pjwOld))*euroHPJW;
             sendMyPacket( 0x00, 7, 10, 0, tmpfloat); // On envoi les last24kWh en euros
+            printEuro(tmpfloat);
           }
           if ((tarifActuel == "HCJR") || (tarifActuel == "HPJR")) { // On regarde le tarif d'avant
             tmplong = (bbrh.cjr - EEPROMReadlong(cjrOld)) + (bbrh.pjr - EEPROMReadlong(pjrOld));
             sendMyPacket( 0x00, 7, 9, 0, tmplong);
+            delay(100);
             tmpfloat = (float)(bbrh.cjr - EEPROMReadlong(cjrOld))*euroHCJR+ (float)(bbrh.pjr - EEPROMReadlong(pjrOld))*euroHPJR;
             sendMyPacket( 0x00, 7, 10, 0, tmpfloat); // On envoi les last24kWh en euros
+            printEuro(tmpfloat);
           }
           
           sendChoice++;
@@ -337,9 +401,28 @@ void loop()
             default:
             sendChoice = 0;
           }
+          
+          if (resultKWh != 0) {
+            delay(100);
+            if (sendMyPacket( 0x00, 7, 7, 1, resultKWh) == 1) resultKWh = 0;
+          }
+          if (resultKWhEuro != 0) {
+            delay(100);
+            if (sendMyPacket( 0x00, 7, 8, 1, resultKWhEuro) == 1) resultKWhEuro = 0;
+          }
     
     previousMillis = currentMillis;
    }
+}
+
+void sendRetry(byte destination, byte type, byte sensor, byte dataB, float dataF, byte retry)
+{
+  int i=0;
+  while(sendMyPacket(destination,type,sensor,dataB,dataF)==0)
+  {
+    i++;
+    if (i>= retry) return;
+  }
 }
 
 int sendMyPacket(byte destination, byte type, byte sensor, byte dataB, float dataF)
@@ -357,7 +440,7 @@ int sendMyPacket(byte destination, byte type, byte sensor, byte dataB, float dat
   // On envoi...
   radio.stopListening(); // First, stop listening so we can talk.
   Serial.println(F("Now sending."));
-  if (!radio.write( &myPacket, sizeof(myPacket) )){  Serial.println(F("Failed.")); return 0; }
+  if (!radio.write( &myPacket, sizeof(myPacket) )){  Serial.println(F("RF24 Send Failed.")); return 0; }
   radio.startListening();
   return 1;
 }
@@ -393,6 +476,16 @@ int getTrame(void)
     }
   }
   else return 0; // trame Pas de caractere dispo dans le serial
+}
+
+void printEuro(float euro)
+{
+  tft.setTextSize(3);
+  tft.setCursor(5, 95);
+  tft.setTextColor(ST7735_GREEN,ST7735_BLACK);
+  tft.print(euro);
+  tft.print(" Eur");
+  
 }
 
 // Manip EEPROM

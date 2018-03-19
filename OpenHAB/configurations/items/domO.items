@@ -4,17 +4,18 @@ Group	gRez	(Tous)
 Group	gExt	(Tous)	
 Group	gSdB	"Salle de bain"	<bath>	(g1er)	
 Group	gChambre1	"Chambre parents"	<bedroom>	(g1er)	
-Group	gChambre2	"Chambre enfant"	<boy1>	(g1er)	
-Group	gChambre3	"Chambre amis"	<bedroom>	(g1er)	
+Group	gChambre3	"Chambre Quentin"	<boy1>	(g1er)	
+Group	gChambre2	"Chambre Elsa"	<bedroom>	(g1er)	
 Group	gCouloir1	"Couloir"	<corridor>	(g1er)	
 Group	gSalon	"Salon"	<sofa>	(gRez)	
 Group	gCuisine	"Cuisine"	<kitchen>	(gRez)	
 Group	gWC	"WC"	<bath>	(gRez)	
 Group	gCouloir0	"Couloir"	<corridor>	(gRez)	
 Group	gPlacard	"Placard"	<wardrobe>	(gRez)	
-Group	domOTemp	<temperature>	(Tous)	
+Group	domOTemp	<temperature>	(Tous)
+Group	gBatteries	<battery>
 
-// Seche serviette //
+// Seche serviette obolete //
 Switch	SecheServiette	"Chauffage salle de bain"	<heating>	(gSdB,chauffage)		{ mqtt=">[raspMosquitto:node/01/swit/00:command:ON:1],>[raspMosquitto:node/01/swit/00:command:OFF:0],<[raspMosquitto:node/01/swst/00:state:default]" }
 Number	SecheMax	"Temperature Max. [%.1f °C]"	<heating>	(gSdB,chauffage)		{ mqtt=">[raspMosquitto:node/01/sett/00:command:*:default]" }
 
@@ -40,23 +41,76 @@ Number	BBRHPJR	"H.P. Rouge [%d kWh]"	<energy>	(gCouloir0)		{ mqtt="<[raspMosquit
 
 // Weather Node
 Number	meteo_Period "Period meteo"
-Number	meteoPression		"Pression [%.2f mbar]"	<wind>	(gExt)								{ mqtt="<[raspMosquitto:node/03/pres/00:state:default]" }
-Number	meteoHumidite		"Humidité [%.1f RH]"	<humidity>	(gExt)							{ mqtt="<[raspMosquitto:node/03/humi/00:state:default]" }
-Number	meteoTemperature	"Température ext. [%.1f °C]"	<temperature>	(gExt,domOTemp,ratiokWhTemp)		{ mqtt="<[raspMosquitto:node/03/temp/00:state:default]" }
+//Number	meteoPression		"Pression [%.2f mbar]"	<wind>	(gExt)								{ mqtt="<[raspMosquitto:node/03/pres/00:state:default]" }
+//Number	meteoHumidite		"Humidité [%.1f RH]"	<humidity>	(gExt)							{ mqtt="<[raspMosquitto:node/03/humi/00:state:default]" }
+//Number	meteoTemperature	"Température ext. [%.1f °C]"	<temperature>	(gExt,domOTemp,ratiokWhTemp)		{ mqtt="<[raspMosquitto:node/03/temp/00:state:default]" }
 Number	meteoLux			"Lumens [%d lux]"		<sun>	(gExt)								{ mqtt="<[raspMosquitto:node/03/lumi/00:state:default]" }
+// REMPLACEMENT WEATHER NODE
+// SondeExt
+Number meteoTemperature "Température ext. [%.1f °C]"    <temperature>   (gExt,domOTemp,ratiokWhTemp) 	{ channel="mihome:sensor_weather_v1:158d0002239ff4:temperature"}
+Number meteoHumidite    "Humidité [%.1f RH]"    <humidity>      	(gExt)				{ channel="mihome:sensor_weather_v1:158d0002239ff4:humidity"}
+Number meteoPression	"Pression [%.1f mbar]"  <wind>  		(gExt)
+Number meteoPressionProxy	"proxyPression [%.1f]"							{ channel="mihome:sensor_weather_v1:158d0002239ff4:pressure"}
+Number miBattSondeExt   "Batterie" 		<battery>             	(gBatteries)            	{ channel="mihome:sensor_weather_v1:158d0002239ff4:batteryLevel"}
+Switch miBattLoSondeExt "Batterie faible" 	<energy>                              			{ channel="mihome:sensor_weather_v1:158d0002239ff4:lowBattery"}
+
 
 // Temperature des NODES
 Number	temp_Period	"Graph. Température"
 Number	tempNode00	"Température node00 [%.1f °C]"	<temperature>	(gSalon,domOTemp)	{ mqtt="<[raspMosquitto:node/00/temp/00:state:default]" }
 Number	tempNode01	"Température node01 [%.1f °C]"	<temperature>	(gSdB,domOTemp)		{ mqtt="<[raspMosquitto:node/01/temp/00:state:default]" }
-Number	tempNode03	"Température node03 [%.1f °C]"	<temperature>	(gExt, domOTemp)	{ mqtt="<[raspMosquitto:node/03/temp/01:state:default]" }
+//Number	tempNode03	"Température node03 [%.1f °C]"	<temperature>	(gExt, domOTemp)	{ mqtt="<[raspMosquitto:node/03/temp/01:state:default]" }
 
 // Date des update de node.
-DateTime	node00_LastUpdate	"Last Update node00 [%1$ta %1$tT]"	<clock>
-DateTime	node01_LastUpdate	"Last Update node01 [%1$ta %1$tT]"	<clock>
-DateTime	node02_LastUpdate	"Last Update node02 [%1$ta %1$tT]"	<clock>
-DateTime	node03_LastUpdate	"Last Update node03 [%1$ta %1$tT]"	<clock>
-DateTime	bNode00			"Last start node00 [%1$ta %1$tb %1$td %1$tR]"	<clock>
+DateTime	node00_LastUpdate	"node00 MQTTGateway [%1$td %1$tb %1$tT]"	<time>
+DateTime	node01_LastUpdate	"node01 Sdb [%1$td %1$tb %1$tT]"	<time>
+DateTime	node02_LastUpdate	"node02 EDF [%1$td %1$tb %1$tT]"	<time>
+DateTime	node03_LastUpdate	"node03 Weather [%1$td %1$tb %1$tT]"	<time>
+DateTime	miTempChambre3_LastUpdate	"miSensor Ch. Quentin [%1$td %1$tb %1$tT]"  <time>	
+DateTime        miTempChambre2_LastUpdate       "miSensor Ch. Elsa [%1$td %1$tb %1$tT]"  <time>
+DateTime        miTempChambre1_LastUpdate       "miSensor Ch. Parents [%1$td %1$tb %1$tT]"  <time>
+DateTime	miPlugChambre3_LastUpdate	"miPlug Ch. Quentin [%1$td %1$tb %1$tT]"  <time>
+DateTime	miSondeExt_LastUpdate		"Sonde Ext. [%1$td %1$tb %1$tT]"  <time>
+DateTime	bNode00				"Last start node00 [%1$ta %1$td %1$tb %1$tR]"	<time>
+Switch		resetNode00			"Reboot node00"						<network>		{ mqtt=">[raspMosquitto:node/00/rese/00:command:OFF:0],>[raspMosquitto:node/00/rese/00:command:ON:1],<[raspMosquitto:node/00/rese/00:state:default]" }
+
 
 // messages bonjour
 String	bonjourNode00	{ mqtt="<[raspMosquitto:node/00:state:default]" }
+
+// Items Xiaomi
+// Capteur de temperature chambre de quentin
+Number miTempChambre3 	"Température [%.1f °C]" <temperature> 	(gChambre3,domOTemp) 	{ channel="mihome:sensor_ht:158d0001dcbbfb:temperature" }
+Number miHumiChambre3 	"Humidité [%.1f RH]" <humidity> 	(gChambre3,domOTemp) 	{ channel="mihome:sensor_ht:158d0001dcbbfb:humidity" }
+Number miBattChambre3 	"Batterie" <battery> 			(gBatteries)		{ channel="mihome:sensor_ht:158d0001dcbbfb:batteryLevel" }
+Switch miBattLoChambre3 "Batterie faible" <energy> 				{ channel="mihome:sensor_ht:158d0001dcbbfb:lowBattery" }
+// Capteur temp 2 Elsa
+Number miTempChambre2   "Température [%.1f °C]" <temperature>   (gChambre2,domOTemp)    { channel="mihome:sensor_ht:158d00019f9277:temperature"}
+Number miHumiChambre2   "Humidité [%.1f RH]" <humidity>         (gChambre2,domOTemp)    { channel="mihome:sensor_ht:158d00019f9277:humidity"}
+Number miBattChambre2   "Batterie" <battery>                    (gBatteries)            { channel="mihome:sensor_ht:158d00019f9277:batteryLevel"}
+Switch miBattLoChambre2 "Batterie faible" <energy>                              { channel="mihome:sensor_ht:158d00019f9277:lowBattery"}
+// Capteur temp 1 Parent
+Number miTempChambre1   "Température [%.1f °C]" <temperature>   (gChambre1,domOTemp)    { channel="mihome:sensor_ht:158d00019cbc50:temperature"}
+Number miHumiChambre1   "Humidité [%.1f RH]" <humidity>         (gChambre1,domOTemp)    { channel="mihome:sensor_ht:158d00019cbc50:humidity"}
+Number miBattChambre1   "Batterie" <battery>                    (gBatteries)            { channel="mihome:sensor_ht:158d00019cbc50:batteryLevel"}
+Switch miBattLoChambre1 "Batterie faible" <energy>                              { channel="mihome:sensor_ht:158d00019cbc50:lowBattery"}
+
+// Gateway salon
+Switch Gateway_LightSwitch 	"Lumière gateway"	<light> 		{ channel="mihome:gateway:34ce00fb61fd:brightness" }
+Dimmer Gateway_Brightness 	"Intensité Lumière"	<dimmablelight> 	{ channel="mihome:gateway:34ce00fb61fd:brightness" }
+Color Gateway_Color 		"Couleur Lumière"	<rgb> 			{ channel="mihome:gateway:34ce00fb61fd:color" }
+Dimmer Gateway_ColorTemperature "Température Lumière"	<heating> 		{ channel="mihome:gateway:34ce00fb61fd:colorTemperature" }
+Number Gateway_AmbientLight 	"Lumière ambiante [%d]"	<sun> 			{ channel="mihome:gateway:34ce00fb61fd:illumination" }
+Number Gateway_Sound 		"Son	"		<soundvolume-0> 	{ channel="mihome:gateway:34ce00fb61fd:sound" }
+Switch Gateway_SoundSwitch 	"Mute"			<soundvolume_mute> 	{ channel="mihome:gateway:34ce00fb61fd:enableSound" }
+Dimmer Gateway_SoundVolume 	"Volume"		<soundvolume> 		{ channel="mihome:gateway:34ce00fb61fd:volume" }
+
+//Smart Socket Chambre Quentin
+Switch miPlugPowerChambre3	"Activer Smart Plug"	<switch>	{ channel="mihome:sensor_plug:158d0001db1bd7:power" }
+Switch miPlugInUseChambre3	"Etat Smart Plug"	<poweroutlet>	{ channel="mihome:sensor_plug:158d0001db1bd7:inUse" }
+Number miPlugLoadChambre3	"Puissance"		<energy>	{ channel="mihome:sensor_plug:158d0001db1bd7:loadPower" }
+Number miPlugConsumChambre3	"Consommation"		<line-incline>	{ channel="mihome:sensor_plug:158d0001db1bd7:powerConsumed" }
+
+//Securite de temperature quentin
+Switch securiteTempChambre3	"Sécurité température"	<fire>
+Number tempMaxChambre3		"Consigne Max Temp. [%.1f °C]"	<temperature>

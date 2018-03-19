@@ -1,4 +1,4 @@
-sitemap demo label="domO"
+sitemap domO label="domO"
 {
 
 	Frame label="Menu principal"{
@@ -12,18 +12,48 @@ sitemap demo label="domO"
 				Text item=tempNode01
 				Setpoint item=SecheMax step=1 minValue=15 maxValue=30
 			}
+			Text label="Chambre Quentin" icon="boy_4" {
+				Text item=miTempChambre3
+				Text item=miHumiChambre3
+				Switch item=securiteTempChambre3
+				Setpoint item=tempMaxChambre3 step=1 minValue=15 maxValue=30
+				Text item=miBattChambre3
+				Switch item=miBattLoChambre3
+				Switch item=miPlugPowerChambre3
+				Switch item=miPlugInUseChambre3
+				Text item=miPlugLoadChambre3
+				Text item=miPlugConsumChambre3
+				Text item=miTempChambre3_LastUpdate
+				Text item=miPlugChambre3_LastUpdate
+				//Switch item=miPlugConsumChambre3 mappings=[ON="0"]
+				//Switch item=resetNode00 label="Reboot Node00" mappings=[OFF="Reset"]
+			}
+			Text label="Chambre Elsa" icon="girl_4" {
+				Text item=miTempChambre2
+                                Text item=miHumiChambre2
+                                Text item=miBattChambre2
+                                Switch item=miBattLoChambre2
+				Text item=miTempChambre2_LastUpdate
+			}
+			Text label="Chambre Parents" icon="parents_5_1" {
+                                Text item=miTempChambre1
+                                Text item=miHumiChambre1 
+                                Text item=miBattChambre1
+                                Switch item=miBattLoChambre1
+				Text item=miTempChambre1_LastUpdate
+                        }
 		}
+
 		Text label="Rez de chaussé" icon="groundfloor" {
 			Text label="Compteur EDF" icon="energy" {
-
 				Text label="Graphiques" icon="chart" {
 				
-					Switch item=PuissanceInst_Period label="Consommation instantanée" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
+					Switch item=PuissanceInst_Period label="Consommation instantanée" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
 					Chart item=PuissanceInst period=4h refresh=3600 visibility=[PuissanceInst_Period==0, PuissanceInst_Period=="Uninitialized"]
 					Chart item=PuissanceInst period=D refresh=3600 visibility=[PuissanceInst_Period==1]
 					Chart item=PuissanceInst period=W refresh=3600 visibility=[PuissanceInst_Period==2]
 					
-					Switch item=last24H_Period label="Consommation quotidienne" mappings=[0="Week", 1="Month", 2="Year", 3="Hide"]
+					Switch item=last24H_Period label="Consommation quotidienne" icon="chart" mappings=[0="Week", 1="Month", 2="Year", 3="Hide"]
 					Chart item=last24HkWh period=W refresh=3600 visibility=[last24H_Period==0, last24H_Period=="Uninitialized"]
 					Chart item=last24HkWh period=M refresh=3600 visibility=[last24H_Period==1]
 					Chart item=last24HkWh period=Y refresh=3600 visibility=[last24H_Period==2]
@@ -34,7 +64,6 @@ sitemap demo label="domO"
 					Chart item=today period=M refresh=3600 visibility=[last24H_Period==1]
 					Chart item=today period=Y refresh=3600 visibility=[last24H_Period==2]
 				}
-
 				Text item=PTEC valuecolor=["BLANC-PLEINES"="black", "ROUGE-PLEINES"="red", "BLEU-PLEINES"="blue", "BLANC-CREUSES"="black", "ROUGE-CREUSES"="red", "BLEU-CREUSES"="blue"]
 				Text item=DEMAIN valuecolor=[BLANC="black",ROUGE="red", BLEU="blue"]
 				Text item=last24HkWh
@@ -49,77 +78,105 @@ sitemap demo label="domO"
 				Text item=BBRHCJR valuecolor=["red"]
 				Text item=BBRHPJR valuecolor=["red"]
 				Text label="Graph. Temp./kWh" icon="chart" {		
-					Switch item=last24H_Period label="Consommation quotidienne" mappings=[0="Week", 1="Month", 2="Year", 3="Hide"]
+					Switch item=last24H_Period label="Consommation quotidienne" icon="chart" mappings=[0="Week", 1="Month", 2="Year", 3="Hide"]
 					Chart item=ratiokWhTemp period=W refresh=3600 visibility=[last24H_Period==0, last24H_Period=="Uninitialized"]
 					Chart item=ratiokWhTemp period=M refresh=3600 visibility=[last24H_Period==1]
 					Chart item=ratiokWhTemp period=Y refresh=3600 visibility=[last24H_Period==2]
 				}
 			}
+
 		}
+
 		Text label="Extérieur" icon="garden" {
-			Text label="Station météo" icon="sun_clouds" {
+//			Text label="Station météo" icon="sun_clouds" {
 				Text label="Graphiques" icon="chart" {
-					Switch item=meteo_Period label="Météo" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
+					Switch item=meteo_Period label="Météo" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
 					Chart item=meteoTemperature period=4h refresh=3600 visibility=[meteo_Period==0, meteo_Period=="Uninitialized"]
 					Chart item=meteoTemperature period=D refresh=3600 visibility=[meteo_Period==1]
 					Chart item=meteoTemperature period=W refresh=3600 visibility=[meteo_Period==2]
+					Chart item=meteoTemperature period=M refresh=3600 visibility=[meteo_Period==3]
+					Chart item=meteoTemperature period=Y refresh=3600 visibility=[meteo_Period==4]
 					
 					Chart item=meteoHumidite period=4h refresh=3600 visibility=[meteo_Period==0, meteo_Period=="Uninitialized"]
 					Chart item=meteoHumidite period=D refresh=3600 visibility=[meteo_Period==1]
 					Chart item=meteoHumidite period=W refresh=3600 visibility=[meteo_Period==2]
+					Chart item=meteoHumidite period=M refresh=3600 visibility=[meteo_Period==3]
+					Chart item=meteoHumidite period=Y refresh=3600 visibility=[meteo_Period==4]
 					
 					Chart item=meteoPression period=4h refresh=3600 visibility=[meteo_Period==0, meteo_Period=="Uninitialized"]
 					Chart item=meteoPression period=D refresh=3600 visibility=[meteo_Period==1]
 					Chart item=meteoPression period=W refresh=3600 visibility=[meteo_Period==2]
+					Chart item=meteoPression period=M refresh=3600 visibility=[meteo_Period==3]
+					Chart item=meteoPression period=Y refresh=3600 visibility=[meteo_Period==4]
 					
 					Chart item=meteoLux period=4h refresh=3600 visibility=[meteo_Period==0, meteo_Period=="Uninitialized"]
 					Chart item=meteoLux period=D refresh=3600 visibility=[meteo_Period==1]
 					Chart item=meteoLux period=W refresh=3600 visibility=[meteo_Period==2]
+					Chart item=meteoLux period=M refresh=3600 visibility=[meteo_Period==3]
+					Chart item=meteoLux period=Y refresh=3600 visibility=[meteo_Period==4]
+
 				}
 				Text item=meteoTemperature
 				Text item=meteoHumidite
 				Text item=meteoPression
 				Text item=meteoLux
-			}
+				Text item=miBattSondeExt
+				Text item=miBattLoSondeExt
+//			}
 		}
 	}
 
 	Frame label="Temperature des Nodes" {
 		Text label="Graphiques" icon="chart" {
-					Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
+					Switch item=temp_Period label="Températures" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month", 4="Year"]
 					Chart item=domOTemp period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
 					Chart item=domOTemp period=D refresh=3600 visibility=[temp_Period==1]
 					Chart item=domOTemp period=W refresh=3600 visibility=[temp_Period==2]
+					Chart item=domOTemp period=M refresh=3600 visibility=[temp_Period==3]
+					Chart item=domOTemp period=Y refresh=3600 visibility=[temp_Period==4]
 		}
-		Text item=tempNode00 valuecolor=[>40="red",>20="green",>15="blue",<=5="blue"] {
-			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
+		Text item=tempNode00 valuecolor=[>40="red",>25="green",<=25="blue"] {
+			Switch item=temp_Period label="Températures" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
 			Chart item=tempNode00 period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
 			Chart item=tempNode00 period=D refresh=3600 visibility=[temp_Period==1]
 			Chart item=tempNode00 period=W refresh=3600 visibility=[temp_Period==2]
+			Chart item=tempNode00 period=M refresh=3600 visibility=[temp_Period==3]
+
 		}
-		Text item=tempNode01 valuecolor=[>25="red",>18="green",>15="blue",<=5="blue"] {
-			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
-			Chart item=tempNode01 period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
-			Chart item=tempNode01 period=D refresh=3600 visibility=[temp_Period==1]
-			Chart item=tempNode01 period=W refresh=3600 visibility=[temp_Period==2]
+		//Text item=tempNode01 valuecolor=[>25="red",>18="green",<18="blue"] {
+		//	Switch item=temp_Period label="Températures" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
+		//	Chart item=tempNode01 period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
+		//	Chart item=tempNode01 period=D refresh=3600 visibility=[temp_Period==1]
+		//	Chart item=tempNode01 period=W refresh=3600 visibility=[temp_Period==2]
+		//	Chart item=tempNode01 period=M refresh=3600 visibility=[temp_Period==3]
+		//}
+		Text item=meteoTemperature valuecolor=[>25="red",>11="green",<=11="blue"] {
+			Switch item=temp_Period label="Températures" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
+			Chart item=meteoTemperature period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
+			Chart item=meteoTemperature period=D refresh=3600 visibility=[temp_Period==1]
+			Chart item=meteoTemperature period=W refresh=3600 visibility=[temp_Period==2]
+			Chart item=meteoTemperature period=M refresh=3600 visibility=[temp_Period==3]
 		}
-		Text item=tempNode03 valuecolor=[>25="red",>18="green",<=5="blue"] {
-			Switch item=temp_Period label="Températures" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
-			Chart item=tempNode03 period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
-			Chart item=tempNode03 period=D refresh=3600 visibility=[temp_Period==1]
-			Chart item=tempNode03 period=W refresh=3600 visibility=[temp_Period==2]
-		}
+		Text item=miTempChambre3 label="Temp. Chambre Quentin" valuecolor=[>25="red",>18="green",<=18="blue"] {
+                        Switch item=temp_Period label="Températures" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Month"]
+                        Chart item=miTempChambre3 period=4h refresh=3600 visibility=[temp_Period==0, temp_Period=="Uninitialized"]
+                        Chart item=miTempChambre3 period=D refresh=3600 visibility=[temp_Period==1]
+                        Chart item=miTempChambre3 period=W refresh=3600 visibility=[temp_Period==2]
+                        Chart item=miTempChambre3 period=M refresh=3600 visibility=[temp_Period==3]
+                }
+		Text item=miTempChambre2 label="Temp. Chambre Elsa" valuecolor=[>25="red",>18="green",<=18="blue"]
+		Text item=miTempChambre1 label="Temp. Chambre Parents" valuecolor=[>25="red",>18="green",<=18="blue"]
 	}	
-	Frame label="Compteur EDF" {
+	Frame label="Acces direct" {
 		Text item=PuissanceInst valuecolor=[>3000="red",>0="green"] {
 			Text label="Graphiques" icon="chart" {
 				
-					Switch item=PuissanceInst_Period label="Consommation instantanée" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
+					Switch item=PuissanceInst_Period label="Consommation instantanée" icon="chart" mappings=[0="4Hour", 1="Day", 2="Week", 3="Hide"]
 					Chart item=PuissanceInst period=4h refresh=3600 visibility=[PuissanceInst_Period==0, PuissanceInst_Period=="Uninitialized"]
 					Chart item=PuissanceInst period=D refresh=3600 visibility=[PuissanceInst_Period==1]
 					Chart item=PuissanceInst period=W refresh=3600 visibility=[PuissanceInst_Period==2]
 					
-					Switch item=last24H_Period label="Consommation quotidienne" mappings=[0="Week", 1="Month", 2="Year", 3="Hide"]
+					Switch item=last24H_Period label="Consommation quotidienne" icon="chart" mappings=[0="Week", 1="Month", 2="Year", 3="Hide"]
 					Chart item=last24HkWh period=W refresh=3600 visibility=[last24H_Period==0, last24H_Period=="Uninitialized"]
 					Chart item=last24HkWh period=M refresh=3600 visibility=[last24H_Period==1]
 					Chart item=last24HkWh period=Y refresh=3600 visibility=[last24H_Period==2]
@@ -145,21 +202,35 @@ sitemap demo label="domO"
 			Text item=BBRHPJR valuecolor=["red"]
 			
 			Text label="Graph. Temp./kWh" icon="chart" {		
-					Switch item=last24H_Period label="Consommation quotidienne" mappings=[0="Week", 1="Month", 2="Year", 3="Hide"]
+					Switch item=last24H_Period label="Consommation quotidienne" icon="chart" mappings=[0="Week", 1="Month", 2="Year", 3="Hide"]
 					Chart item=ratiokWhTemp period=W refresh=3600 visibility=[last24H_Period==0, last24H_Period=="Uninitialized"]
 					Chart item=ratiokWhTemp period=M refresh=3600 visibility=[last24H_Period==1]
 					Chart item=ratiokWhTemp period=Y refresh=3600 visibility=[last24H_Period==2]
 			}
 			
 		}
+		Text label="Xiaomi Gateway 1er etage" icon="settings" {
+			//Text label="Gateway 1er étage" {
+				Switch item=Gateway_LightSwitch
+				Slider item=Gateway_Brightness
+				Colorpicker item=Gateway_Color label="LED Light Color" icon="colorwheel"
+				Text item=Gateway_AmbientLight
+			//}
+		}
 	}
 	Frame label="Diag" {
-		Text label="Last update nodes" icon="clock" {
+		Text label="Last update nodes" icon="error" {
 			Text item=node00_LastUpdate
-			Text item=node01_LastUpdate
+			//Text item=node01_LastUpdate
 			Text item=node02_LastUpdate
 			Text item=node03_LastUpdate
+			Text item=miTempChambre3_LastUpdate
+			Text item=miPlugChambre3_LastUpdate
+			Text item=miTempChambre2_LastUpdate
+			Text item=miTempChambre1_LastUpdate
+			Text item=miSondeExt_LastUpdate
 			Text item=bNode00
+			Switch item=resetNode00 label="Reboot Node00" mappings=[OFF="Reset"]
 		}
 		
 	}

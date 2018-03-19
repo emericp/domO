@@ -93,8 +93,8 @@ void setup()
   radio.setRetries(15,15);                // Max delay between retries & number of retries  
   //radio.setPALevel(RF24_PA_MAX);          // Puissance max
   radio.setChannel(123);                  // Canal numero 123
-  //radio.setPayloadSize(8);                // Payload de 8bytes seulement
-  //radio.setDataRate(RF24_250KBPS);        // Debit à 250kbps
+  radio.setPayloadSize(8);                // Payload de 8bytes seulement
+  radio.setDataRate(RF24_250KBPS);        // Debit à 250kbps
   // Fin config
   radio.openReadingPipe(1,myAddress);
   radio.startListening();                 // Start listening ON A PAS BESOIN D'ECOUTER POUR LE MOMENT

@@ -3,11 +3,12 @@ Strategies {
 	// for rrd charts, we need a cron strategy
 	everyMinute : "0 * * * * ?"
 	every6AM : "0 30 6 * * ?"
+	everyHour : "0 0 * * * ?"
 }
 
 Items {
 
-	PuissanceInst, domOTemp*, meteoHumidite, meteoPression, meteoLux : strategy = everyMinute, restoreOnStartup
+	PuissanceInst, domOTemp*, meteoHumidite, meteoPression, meteoLux, miTempChambre3, tempMaxChambre3 : strategy = everyMinute, restoreOnStartup
 	last24H*, ratiokWhTemp*, today* : strategy = everyMinute, everyUpdate, restoreOnStartup
-
+	batteries* : strategy = everyHour, restoreOnStartup
 }

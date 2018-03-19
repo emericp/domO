@@ -1,14 +1,19 @@
 import org.openhab.core.library.types.*
 import org.openhab.core.persistence.*
 import org.openhab.model.script.actions.*
+import java.lang.Math
+
 
 rule "Init"
 	when
 		System started
 	then
-		if (SecheMax.state == Uninitialized) {
+		if (SecheMax.state == NULL) {
 			postUpdate(SecheMax, 27)	
 		}
+    if (tempMaxChambre3.state == NULL) {
+      postUpdate(tempMaxChambre3, 24)
+    }
 end
 
 rule "Last update node00"
@@ -36,15 +41,84 @@ then
   postUpdate(node02_LastUpdate, new DateTimeType())
 end
 
+rule "Demain Rouge"
+when
+	Item DEMAIN received update ROUGE
+then
+	sendMail("mourf@me.com", "Tarif de demain : ROUGE", "Le tarif EDF de demain sera ROUGE.")
+end
+
+rule "Demain Blanc"
+when
+	Item DEMAIN received update BLANC
+then
+	sendMail("mourf@me.com", "Tarif de demain : BLANC", "Le tarif EDF de demain sera BLANC.")
+end
+
+//rule "Demain Bleu"
+//when
+//	Item DEMAIN received update BLEU
+//then
+//	sendMail("mourf@me.com", "Tarif de demain : BLEU", "Le tarif EDF de demain sera BLEU.")
+//end
+
 rule "Last update node03"
 when
-  Item tempNode03 received update or
-  Item meteoPression received update or
-  Item meteoHumidite received update or
-  Item meteoTemperature received update or
+  //Item tempNode03 received update or
+  //Item meteoPression received update or
+  //Item meteoHumidite received update or
+  //Item meteoTemperature received update or
   Item meteoLux received update
 then
   postUpdate(node03_LastUpdate, new DateTimeType())
+end
+// date time chambre quentin
+rule "Last update miSensor Chambre3"
+when
+	Item miTempChambre3 received update or
+        Item miHumiChambre3 received update or
+        Item miBattChambre3 received update or
+        Item miBattLoChambre3 received update
+then
+	postUpdate(miTempChambre3_LastUpdate, new DateTimeType())
+end
+// date time chambre elsa
+rule "Last update miSensor Chambre2"
+when
+        Item miTempChambre2 received update or
+        Item miHumiChambre2 received update or
+        Item miBattChambre2 received update or
+        Item miBattLoChambre2 received update
+then
+        postUpdate(miTempChambre2_LastUpdate, new DateTimeType())
+end
+// date time chambre parents
+rule "Last update miSensor Chambre1"
+when
+        Item miTempChambre1 received update or
+        Item miHumiChambre1 received update or
+        Item miBattChambre1 received update or
+        Item miBattLoChambre1 received update
+then
+        postUpdate(miTempChambre1_LastUpdate, new DateTimeType())
+end
+//
+rule "Last update miPlug Chambre3"
+when
+	Item miPlugInUseChambre3 received update or
+	Item miPlugConsumChambre3 received update or
+	Item miPlugLoadChambre3 received update
+then
+	postUpdate(miPlugChambre3_LastUpdate, new DateTimeType())
+end
+// Sonde exterieur
+rule "Last update SondeExt"
+when
+        Item meteoTemperature received update or
+        Item meteoHumidite received update or
+        Item meteoPressionProxy received update
+then
+        postUpdate(miSondeExt_LastUpdate, new DateTimeType())
 end
 
 rule "Last start node00"
@@ -52,4 +126,40 @@ when
   Item bonjourNode00 received update
 then
   postUpdate(bNode00, new DateTimeType())
+  sendMail("mourf@me.com", "Start node00", "Le node00, MQTT Gateway, vient de démarrer")
+end
+
+rule "Chauffage Quentin"
+when
+	//Item tempNode00 received update
+	Item miTempChambre3 received update or
+        Item tempMaxChambre3 received update or
+	Item securiteTempChambre3 received update
+then
+	var Number temp = tempMaxChambre3.state as DecimalType
+	temp = temp - 0.5
+	//logInfo("XXXXXXXXXXXXXXXXX","Un update de temperature detectee")
+	//si la temperature depasse 25..
+	if (miTempChambre3.state > tempMaxChambre3.state && securiteTempChambre3.state == ON) {
+	//if (tempNode00.state > 22) {
+		//on coupe
+		if (miPlugPowerChambre3.state == ON) {
+			miPlugPowerChambre3.sendCommand(OFF)
+		}
+	}
+	//si la temperature est en dessous de 24..
+	if (miTempChambre3.state < temp && securiteTempChambre3.state == ON) {
+	//if (tempNode00.state < 22) {
+                //on allume
+		if (miPlugPowerChambre3.state == OFF) {
+	                miPlugPowerChambre3.sendCommand(ON)
+        	}
+	}
+end
+
+rule "Ajustement meteoPression"
+when
+	Item meteoPressionProxy received update
+then
+	meteoPression.sendCommand((meteoPressionProxy.state as DecimalType) * 10)
 end
